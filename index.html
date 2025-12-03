@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта лояльности MOONY | Нью-Йоркское приключение</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f0ff;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #B1B1E8 0%, #8A8AD8 100%);
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 10px 20px rgba(138, 138, 216, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to right, #B1B1E8, #FFB6C1, #FFD700);
+        }
+        
+        .card-title {
+            text-align: center;
+            color: #5A5A9A;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        .card-subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        
+        .code-input-section {
+            background-color: #f9f7ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #e6e2ff;
+        }
+        
+        .code-input-title {
+            color: #5A5A9A;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .code-input-desc {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .code-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .code-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #B1B1E8;
+            border-radius: 10px;
+            background-color: white;
+            color: #5A5A9A;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #8A8AD8;
+            box-shadow: 0 0 0 3px rgba(138, 138, 216, 0.2);
+        }
+        
+        .code-btn {
+            padding: 12px 30px;
+            background: linear-gradient(to right, #B1B1E8, #8A8AD8);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        
+        .code-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(138, 138, 216, 0.3);
+        }
+        
+        .code-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .code-error {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .landmarks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .landmarks-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .landmarks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .landmark {
+            background-color: #f9f7ff;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid #e6e2ff;
+            position: relative;
+        }
+        
+        .landmark.visited {
+            background-color: #f0eeff;
+            border-color: #8A8AD8;
+        }
+        
+        .landmark-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5A5A9A;
+        }
+        
+        .landmark.visited .landmark-icon {
+            color: #8A8AD8;
+        }
+        
+        .landmark-name {
+            font-weight: 600;
+            color: #5A5A9A;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .landmark-desc {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .stamp {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #f0eeff;
+            border: 2px dashed #B1B1E8;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #B1B1E8;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .landmark.visited .stamp {
+            background-color: #B1B1E8;
+            color: white;
+            border: 2px solid #8A8AD8;
+            transform: scale(1.05);
+        }
+        
+        .stamp-check {
+            display: none;
+        }
+        
+        .landmark.visited .stamp-check {
+            display: block;
+        }
+        
+        .progress-container {
+            background-color: #f0eeff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .progress-title {
+            color: #5A5A9A;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #e6e2ff;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #B1B1E8, #8A8AD8);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .reward-message {
+            display: none;
+            background: linear-gradient(135deg, #FFD700 0%, #FFB347 100%);
+            color: #5A3E00;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 25px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn {
+            background-color: #f0eeff;
+            color: #8A8AD8;
+            border: 2px solid #8A8AD8;
+        }
+        
+        .reset-btn:hover {
+            background-color: #8A8AD8;
+            color: white;
+        }
+        
+        .claim-btn {
+            background: linear-gradient(to right, #B1B1E8, #8A8AD8);
+            color: white;
+            box-shadow: 0 5px 15px rgba(138, 138, 216, 0.3);
+        }
+        
+        .claim-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(138, 138, 216, 0.4);
+        }
+        
+        .claim-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .instructions {
+            background-color: #f9f7ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+        
+        .instructions h3 {
+            color: #5A5A9A;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .logo {
+            color: #B1B1E8;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+        
+        .how-it-works {
+            background-color: #fff9e6;
+            border-left: 4px solid #FFD700;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .how-it-works h4 {
+            color: #b8860b;
+            margin-bottom: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-cookie-bite"></i> MOONY</h1>
+            <p>Нью-Йоркское приключение: собери 6 печатей и получи бесплатное печенье!</p>
+        </div>
+        
+        <div class="how-it-works">
+            <h4><i class="fas fa-shield-alt"></i> Защищённая система</h4>
+            <p>После каждой покупки кассир даст вам 4-значный код для добавления печати.</p>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Карта лояльности «Нью-Йоркское приключение»</h2>
+            <p class="card-subtitle">Введите код от кассира, чтобы добавить печать</p>
+            
+            <div class="code-input-section">
+                <h3 class="code-input-title">Добавить печать</h3>
+                <p class="code-input-desc">После покупки спросите у кассира 4-значный код и введите его ниже</p>
+                
+                <div class="code-input-container">
+                    <input type="text" maxlength="1" class="code-input" id="code1" data-index="0">
+                    <input type="text" maxlength="1" class="code-input" id="code2" data-index="1">
+                    <input type="text" maxlength="1" class="code-input" id="code3" data-index="2">
+                    <input type="text" maxlength="1" class="code-input" id="code4" data-index="3">
+                </div>
+                
+                <button class="code-btn" id="submitCodeBtn">
+                    <i class="fas fa-stamp"></i> Добавить печать
+                </button>
+                
+                <div class="code-error" id="codeError">
+                    <i class="fas fa-exclamation-circle"></i> Неверный код! Попросите код у кассира.
+                </div>
+            </div>
+            
+            <div class="landmarks-grid" id="landmarksContainer">
+                <!-- Достопримечательности будут добавлены через JavaScript -->
+            </div>
+            
+            <div class="progress-container">
+                <h3 class="progress-title">Ваш прогресс</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text" id="progressText">Печатей: <span id="visitedCount">0</span> из 6</p>
+                
+                <div class="reward-message" id="rewardMessage">
+                    <i class="fas fa-gift"></i> Поздравляем! Вы собрали все печати! Покажите эту страницу кассиру для получения бесплатного печенья!
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="reset-btn" id="resetBtn">
+                    <i class="fas fa-redo"></i> Новая карта
+                </button>
+                <button class="claim-btn" id="claimBtn" disabled>
+                    <i class="fas fa-award"></i> Получить печенье
+                </button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Как это работает:</h3>
+            <ul>
+                <li><strong>1.</strong> Совершите покупку в киоске MOONY от 300 ₽</li>
+                <li><strong>2.</strong> Попросите у кассира 4-значный код для печати</li>
+                <li><strong>3.</strong> Введите код в форму выше и нажмите "Добавить печать"</li>
+                <li><strong>4.</strong> Когда соберёте 6 печатей, нажмите "Получить печенье"</li>
+                <li><strong>5.</strong> Покажите эту страницу кассиру для получения бесплатного печенья!</li>
+                <li><strong>6.</strong> После получения нажмите "Новая карта" для следующего приключения</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p class="logo">MOONY</p>
+            <p>Нью-Йоркское печенье с характером | Защищённая система лояльности</p>
+        </div>
+    </div>
+
+    <script>
+        // Данные о достопримечательностях
+        const landmarks = [
+            {
+                id: 1,
+                name: "Статуя Свободы",
+                description: "Символ свободы и новых возможностей",
+                icon: "fa-monument",
+                visited: false
+            },
+            {
+                id: 2,
+                name: "Эмпайр-стейт-билдинг",
+                description: "Легендарный небоскрёб и символ амбиций",
+                icon: "fa-building",
+                visited: false
+            },
+            {
+                id: 3,
+                name: "Бруклинский мост",
+                description: "Знаменитый подвесной мост, соединяющий районы",
+                icon: "fa-bridge",
+                visited: false
+            },
+            {
+                id: 4,
+                name: "Центральный парк",
+                description: "Легкие Нью-Йорка и место для отдыха",
+                icon: "fa-tree",
+                visited: false
+            },
+            {
+                id: 5,
+                name: "Таймс-сквер",
+                description: "Сердце города, наполненное энергией и светом",
+                icon: "fa-star",
+                visited: false
+            },
+            {
+                id: 6,
+                name: "Музей Гуггенхайма",
+                description: "Шедевр архитектуры и современного искусства",
+                icon: "fa-landmark",
+                visited: false
+            }
+        ];
+
+        // Секретные коды для кассиров (в реальности генерируются динамически)
+        // Для демонстрации используем фиксированные коды. В реальности коды должны меняться каждый день!
+        const SECRET_CODES = [
+            "1234", "5678", "9012", "3456", "7890", "4321",
+            "1111", "2222", "3333", "4444", "5555", "6666"
+        ];
+
+        // Элементы DOM
+        const landmarksContainer = document.getElementById('landmarksContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const visitedCountElement = document.getElementById('visitedCount');
+        const rewardMessage = document.getElementById('rewardMessage');
+        const resetBtn = document.getElementById('resetBtn');
+        const claimBtn = document.getElementById('claimBtn');
+        const submitCodeBtn = document.getElementById('submitCodeBtn');
+        const codeInputs = document.querySelectorAll('.code-input');
+        const codeError = document.getElementById('codeError');
+
+        // Загрузка состояния из localStorage
+        let visitedLandmarks = JSON.parse(localStorage.getItem('moonyVisitedLandmarks')) || [];
+        let rewardClaimed = localStorage.getItem('moonyRewardClaimed') === 'true';
+
+        // Инициализация состояния
+        landmarks.forEach(landmark => {
+            landmark.visited = visitedLandmarks.includes(landmark.id);
+        });
+
+        // Функция отрисовки достопримечательностей
+        function renderLandmarks() {
+            landmarksContainer.innerHTML = '';
+            
+            landmarks.forEach(landmark => {
+                const landmarkElement = document.createElement('div');
+                landmarkElement.className = `landmark ${landmark.visited ? 'visited' : ''}`;
+                
+                landmarkElement.innerHTML = `
+                    <div class="landmark-icon">
+                        <i class="fas ${landmark.icon}"></i>
+                    </div>
+                    <h3 class="landmark-name">${landmark.name}</h3>
+                    <p class="landmark-desc">${landmark.description}</p>
+                    <div class="stamp">
+                        ${landmark.visited ? 
+                            '<i class="fas fa-check stamp-check"></i>' : 
+                            '<i class="fas fa-map-marker-alt"></i>'
+                        }
+                    </div>
+                `;
+                
+                landmarksContainer.appendChild(landmarkElement);
+            });
+            
+            updateProgress();
+        }
+
+        // Функция добавления печати (только при правильном коде)
+        function addStamp() {
+            // Собираем код из полей ввода
+            let enteredCode = '';
+            codeInputs.forEach(input => {
+                enteredCode += input.value;
+            });
+            
+            // Проверяем код
+            if (SECRET_CODES.includes(enteredCode)) {
+                // Код верный! Находим первую непосещённую достопримечательность
+                const nextLandmark = landmarks.find(landmark => !landmark.visited);
+                
+                if (nextLandmark) {
+                    nextLandmark.visited = true;
+                    visitedLandmarks.push(nextLandmark.id);
+                    
+                    // Сохраняем в localStorage
+                    localStorage.setItem('moonyVisitedLandmarks', JSON.stringify(visitedLandmarks));
+                    
+                    // Очищаем поля ввода
+                    codeInputs.forEach(input => {
+                        input.value = '';
+                    });
+                    
+                    // Скрываем ошибку, если была
+                    codeError.style.display = 'none';
+                    
+                    // Рендерим обновлённую карту
+                    renderLandmarks();
+                    
+                    // Проверяем, все ли достопримечательности посещены
+                    if (visitedLandmarks.length === landmarks.length) {
+                        setTimeout(() => {
+                            rewardMessage.style.display = 'block';
+                            claimBtn.disabled = false;
+                        }, 500);
+                    }
+                    
+                    // Показываем уведомление об успехе
+                    showNotification(`Печать добавлена! Вы посетили ${nextLandmark.name}`);
+                    
+                } else {
+                    showNotification("Все достопримечательности уже посещены!");
+                }
+            } else {
+                // Неверный код
+                codeError.style.display = 'block';
+                codeInputs.forEach(input => {
+                    input.style.borderColor = '#ff6b6b';
+                });
+                
+                // Через 3 секунды убираем ошибку
+                setTimeout(() => {
+                    codeError.style.display = 'none';
+                    codeInputs.forEach(input => {
+                        input.style.borderColor = '#B1B1E8';
+                    });
+                }, 3000);
+            }
+        }
+
+        // Функция показа уведомления
+        function showNotification(message) {
+            // Создаём временное уведомление
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(to right, #B1B1E8, #8A8AD8);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                font-weight: 600;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Удаляем через 3 секунды
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Функция обновления прогресса
+        function updateProgress() {
+            const visitedCount = visitedLandmarks.length;
+            const progressPercent = (visitedCount / landmarks.length) * 100;
+            
+            progressFill.style.width = `${progressPercent}%`;
+            visitedCountElement.textContent = visitedCount;
+            
+            if (rewardClaimed) {
+                progressText.textContent = "Награда получена! Начните новое приключение.";
+                claimBtn.disabled = true;
+                claimBtn.textContent = "Награда получена";
+            } else if (visitedCount === landmarks.length) {
+                progressText.textContent = "Поздравляем! Все печати собраны!";
+            } else {
+                progressText.textContent = `Печатей: ${visitedCount} из ${landmarks.length}`;
+            }
+        }
+
+        // Функция сброса карты
+        function resetCard() {
+            landmarks.forEach(landmark => {
+                landmark.visited = false;
+            });
+            
+            visitedLandmarks = [];
+            rewardClaimed = false;
+            
+            // Очищаем localStorage
+            localStorage.removeItem('moonyVisitedLandmarks');
+            localStorage.removeItem('moonyRewardClaimed');
+            
+            rewardMessage.style.display = 'none';
+            claimBtn.disabled = true;
+            claimBtn.textContent = "Получить печенье";
+            
+            renderLandmarks();
+            showNotification("Карта сброшена! Начните новое Нью-Йоркское приключение!");
+        }
+
+        // Функция получения награды
+        function claimReward() {
+            if (visitedLandmarks.length === landmarks.length && !rewardClaimed) {
+                rewardClaimed = true;
+                localStorage.setItem('moonyRewardClaimed', 'true');
+                
+                updateProgress();
+                showNotification("Награда активирована! Покажите эту страницу кассиру для получения бесплатного печенья!");
+            }
+        }
+
+        // Настройка полей ввода кода
+        codeInputs.forEach((input, index) => {
+            // Автопереход к следующему полю
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < codeInputs.length - 1) {
+                    codeInputs[index + 1].focus();
+                }
+            });
+            
+            // Обработка Backspace
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    codeInputs[index - 1].focus();
+                }
+            });
+            
+            // Запрет ввода не-цифр
+            input.addEventListener('keypress', (e) => {
+                if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Инициализация
+        renderLandmarks();
+        
+        // Показываем сообщение о награде, если она уже получена
+        if (rewardClaimed) {
+            rewardMessage.style.display = 'block';
+            claimBtn.disabled = true;
+            claimBtn.textContent = "Награда получена";
+        }
+        
+        // Если все достопримечательности уже посещены, показываем сообщение о награде
+        if (visitedLandmarks.length === landmarks.length && !rewardClaimed) {
+            rewardMessage.style.display = 'block';
+            claimBtn.disabled = false;
+        }
+        
+        // Назначаем обработчики событий
+        resetBtn.addEventListener('click', resetCard);
+        claimBtn.addEventListener('click', claimReward);
+        submitCodeBtn.addEventListener('click', addStamp);
+        
+        // Также можно отправлять код по нажатию Enter
+        codeInputs[codeInputs.length - 1].addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                addStamp();
+            }
+        });
+
+        // Добавляем CSS для анимации уведомлений
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
